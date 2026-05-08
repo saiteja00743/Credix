@@ -127,6 +127,57 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
         };
       }
     }
+    else if (tool.provider === "Gemini / Google") {
+      if (costPerSeat > 20 && seats >= 2) {
+        recommendation = {
+          action: "Optimize Gemini Seat Count",
+          savings: spend - (20 * seats),
+          reasoning: "At $20/user/month for Google One AI Premium (Gemini Ultra), verify that all seats are actively using advanced features. Users who only need basic access can use the free Gemini tier.",
+          type: "downgrade"
+        };
+      } else if (tool.useCase === "Software Engineering" && tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot")) {
+        recommendation = {
+          action: "Consolidate with Existing Dev Tools",
+          savings: spend,
+          reasoning: "Gemini for coding overlaps significantly with your existing Cursor/Copilot subscription. Most engineering teams don't need both a dedicated code assistant and a general-purpose LLM for coding.",
+          type: "consolidation"
+        };
+      }
+    }
+    else if (tool.provider === "Perplexity AI") {
+      if (costPerSeat > 20) {
+        recommendation = {
+          action: "Audit Perplexity Pro Usage",
+          savings: spend - (20 * seats),
+          reasoning: "Perplexity Pro is $20/user/month. If you're paying more, you may have unused seats. Consider whether free-tier Perplexity covers most research needs.",
+          type: "downgrade"
+        };
+      } else if (tools.some(t => t.provider === "ChatGPT / OpenAI" || t.provider === "Claude / Anthropic") && recommendation.type === "optimal") {
+        recommendation = {
+          action: "Evaluate Research Tool Overlap",
+          savings: spend * 0.5,
+          reasoning: "Perplexity Pro's core value is AI-powered research. With ChatGPT/Claude already in your stack, consider whether the free Perplexity tier plus your existing LLMs can cover research use cases.",
+          type: "consolidation"
+        };
+      }
+    }
+    else if (tool.provider === "Windsurf / Codeium") {
+      if (costPerSeat > 15) {
+        recommendation = {
+          action: "Downgrade to Windsurf Pro",
+          savings: spend - (15 * seats),
+          reasoning: "Windsurf Pro ($15/user/month) provides full AI-assisted coding features. Enterprise tiers add admin controls that most small teams don't need.",
+          type: "downgrade"
+        };
+      } else if (tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot") && recommendation.type === "optimal") {
+        recommendation = {
+          action: "Eliminate Code Assistant Redundancy",
+          savings: spend,
+          reasoning: "Running Windsurf alongside Cursor or GitHub Copilot is redundant. Standardize on one AI code editor to eliminate duplicate spending.",
+          type: "consolidation"
+        };
+      }
+    }
     else if (tool.provider === "Other / Custom API" && spend > 1000) {
       recommendation = {
         action: "Negotiate Custom Enterprise Tier",
@@ -136,7 +187,7 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
       };
     }
 
-    // Cross-platform Overlap check
+    // Cross-platform Overlap check: Claude + ChatGPT
     if (
       tool.provider === "Claude / Anthropic" &&
       tools.some(t => t.provider === "ChatGPT / OpenAI") && 
@@ -146,6 +197,20 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
           action: "Eliminate LLM Redundancy",
           savings: spend,
           reasoning: "Your team is paying for both ChatGPT and Claude. Standardizing on one platform is the #1 way startups reduce AI tool bloat.",
+          type: "consolidation"
+        };
+    }
+
+    // Cross-platform Overlap check: Cursor + Copilot
+    if (
+      tool.provider === "Cursor" &&
+      tools.some(t => t.provider === "GitHub Copilot") &&
+      recommendation.type === "optimal"
+    ) {
+        recommendation = {
+          action: "Consolidate Code Assistants",
+          savings: spend,
+          reasoning: "Running both Cursor and GitHub Copilot is redundant — both provide AI-powered autocomplete and chat. Pick the one your team prefers and eliminate the other.",
           type: "consolidation"
         };
     }

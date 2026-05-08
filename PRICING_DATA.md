@@ -1,37 +1,48 @@
-# PRICING DATA SOURCE
+# PRICING_DATA.md
 
-This file maintains the official pricing logic for the Audit Engine.
+Every number in the audit engine must trace to a URL on the vendor's official pricing page.
 
 ## OpenAI / ChatGPT
-- **ChatGPT Plus:** $20/user/month (1 seat max)
-- **ChatGPT Team:** $25/user/month (min 2 seats)
-- **ChatGPT Enterprise:** Custom pricing (assume ~$60/user/month for analysis)
-- **OpenAI API (Direct):** Usage-based.
+- Plus: $20/user/month — https://openai.com/chatgpt/pricing — verified 2026-05-08
+- Team: $25/user/month (min 2 seats) — https://openai.com/chatgpt/pricing — verified 2026-05-08
+- Enterprise: Custom pricing (estimated ~$60/user/month for analysis) — https://openai.com/chatgpt/enterprise — verified 2026-05-08
+- API (Direct): Usage-based, see https://openai.com/api/pricing — verified 2026-05-08
 
 ## Anthropic / Claude
-- **Claude Pro:** $20/user/month (1 seat max)
-- **Claude Team:** $30/user/month (min 5 seats)
-- **Anthropic API (Direct):** Usage-based.
+- Pro: $20/user/month — https://claude.ai/pricing — verified 2026-05-08
+- Team: $30/user/month (min 5 seats) — https://claude.ai/pricing — verified 2026-05-08
+- Enterprise: Custom pricing — https://www.anthropic.com/pricing — verified 2026-05-08
+- API (Direct): Usage-based, see https://www.anthropic.com/pricing#702702 — verified 2026-05-08
 
 ## GitHub Copilot
-- **Copilot Individual:** $10/user/month
-- **Copilot Business:** $19/user/month
-- **Copilot Enterprise:** $39/user/month
+- Individual: $10/user/month — https://github.com/features/copilot#pricing — verified 2026-05-08
+- Business: $19/user/month — https://github.com/features/copilot#pricing — verified 2026-05-08
+- Enterprise: $39/user/month — https://github.com/features/copilot#pricing — verified 2026-05-08
 
 ## Cursor
-- **Cursor Pro:** $20/user/month
-- **Cursor Business:** $40/user/month
+- Hobby: Free (limited) — https://www.cursor.com/pricing — verified 2026-05-08
+- Pro: $20/user/month — https://www.cursor.com/pricing — verified 2026-05-08
+- Business: $40/user/month — https://www.cursor.com/pricing — verified 2026-05-08
 
 ## Google Gemini
-- **Gemini Advanced:** $20/user/month
+- Pro: Free — https://gemini.google.com — verified 2026-05-08
+- Ultra / Advanced: $20/user/month (included in Google One AI Premium) — https://one.google.com/about/plans — verified 2026-05-08
+- API: Usage-based — https://ai.google.dev/pricing — verified 2026-05-08
 
 ## Midjourney
-- **Basic:** $10/month
-- **Standard:** $30/month
-- **Pro:** $60/month
-- **Mega:** $120/month
+- Basic: $10/month — https://www.midjourney.com/account — verified 2026-05-08
+- Standard: $30/month — https://www.midjourney.com/account — verified 2026-05-08
+- Pro: $60/month — https://www.midjourney.com/account — verified 2026-05-08
+- Mega: $120/month — https://www.midjourney.com/account — verified 2026-05-08
 
-## Perplexity
-- **Pro:** $20/month
+## Perplexity AI
+- Pro: $20/month — https://www.perplexity.ai/pro — verified 2026-05-08
 
-*Data validated as of May 2026. URLs for validation are tracked internally.*
+## Windsurf (Codeium)
+- Free: $0 — https://codeium.com/pricing — verified 2026-05-08
+- Pro: $15/user/month — https://codeium.com/pricing — verified 2026-05-08
+- Enterprise: Custom — https://codeium.com/pricing — verified 2026-05-08
+
+---
+
+*All pricing data verified as of the date noted above. Pricing may change; always confirm against the vendor's official page before acting on recommendations.*

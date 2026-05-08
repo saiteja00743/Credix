@@ -69,9 +69,39 @@ function SharePanel({ resultId }: { resultId: string }) {
 }
 
 function InsightCard({ audit }: { audit: AuditResult }) {
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [summarySource, setSummarySource] = useState<string>("loading");
+
   const redundantSeats = audit.toolResults.filter(t => t.recommendation.type === "consolidation").length;
   const downgradeCount = audit.toolResults.filter(t => t.recommendation.type === "downgrade").length;
   const creditsCount = audit.toolResults.filter(t => t.recommendation.type === "credits").length;
+
+  useEffect(() => {
+    async function fetchSummary() {
+      try {
+        const res = await fetch("/api/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            totalCurrentSpend: audit.totalCurrentSpend,
+            totalMonthlySavings: audit.totalMonthlySavings,
+            totalAnnualSavings: audit.totalAnnualSavings,
+            toolResults: audit.toolResults,
+          }),
+        });
+        const data = await res.json();
+        setAiSummary(data.summary);
+        setSummarySource(data.source || "fallback");
+      } catch {
+        // Network failure — use inline fallback
+        setAiSummary(
+          `Based on our analysis of your ${audit.toolResults.length} AI platform(s), your organization currently spends $${audit.totalCurrentSpend.toLocaleString()}/month on AI infrastructure. Our audit engine identified $${audit.totalMonthlySavings.toFixed(0)}/month in potential savings ($${audit.totalAnnualSavings.toLocaleString()} annually).`
+        );
+        setSummarySource("fallback");
+      }
+    }
+    fetchSummary();
+  }, [audit]);
 
   return (
     <div className="glass-card gradient-border-emerald rounded-2xl p-7 relative overflow-hidden h-full">
@@ -81,18 +111,23 @@ function InsightCard({ audit }: { audit: AuditResult }) {
           <div className="w-11 h-11 bg-primary/10 rounded-full border border-primary/20 flex items-center justify-center">
             <Zap className="w-5 h-5 text-primary" />
           </div>
-          <h2 className="text-[20px] font-semibold">Personalized AI Summary</h2>
+          <div>
+            <h2 className="text-[20px] font-semibold">Personalized AI Summary</h2>
+            {summarySource === "anthropic" && (
+              <span className="text-[10px] text-on-surface-variant font-medium tracking-wide uppercase">Powered by Claude</span>
+            )}
+          </div>
         </div>
         <div className="space-y-4 text-on-surface-variant text-[14px] leading-relaxed">
-          <p>
-            Based on your usage patterns across <strong className="text-on-surface">{audit.toolResults.length} AI platforms</strong>, your organization is spending <strong className="text-on-surface">${audit.totalCurrentSpend.toLocaleString()}/month</strong>. We identified significant waste in your current setup.
-          </p>
-          <p>
-            By implementing our recommendations, you can reduce your monthly spend by <strong className="text-primary">${audit.totalMonthlySavings.toLocaleString()}</strong>. 
-            {redundantSeats > 0 && " We detected multiple redundant tools that could be consolidated."}
-            {downgradeCount > 0 && " Several tools are on enterprise or team tiers when individual or pro tiers would suffice for your seat count."}
-            {creditsCount > 0 && " Your high API/Enterprise spend qualifies for startup infrastructure credits."}
-          </p>
+          {summarySource === "loading" ? (
+            <div className="space-y-3">
+              <div className="h-3 w-full bg-surface-container-high rounded animate-pulse" />
+              <div className="h-3 w-5/6 bg-surface-container-high rounded animate-pulse" />
+              <div className="h-3 w-3/4 bg-surface-container-high rounded animate-pulse" />
+            </div>
+          ) : (
+            <p>{aiSummary}</p>
+          )}
         </div>
 
         {/* Mini savings badges */}

@@ -8,13 +8,14 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 const AI_PROVIDERS = [
+  "Cursor",
   "ChatGPT / OpenAI",
   "Claude / Anthropic",
+  "GitHub Copilot",
   "Gemini / Google",
+  "Windsurf / Codeium",
   "Midjourney",
   "Perplexity AI",
-  "GitHub Copilot",
-  "Jasper AI",
   "Other / Custom API",
 ];
 
@@ -176,7 +177,7 @@ function EmptyToolSlot({ onClick }: { onClick: () => void }) {
 
 export default function AuditForm() {
   const router = useRouter();
-  const [tools, setTools] = useState<ToolEntry[]>([{ id: "1", provider: "ChatGPT / OpenAI", monthlySpend: "", seats: "", useCase: "Software Engineering" }]);
+  const [tools, setTools] = useState<ToolEntry[]>([{ id: "1", provider: "Cursor", monthlySpend: "", seats: "", useCase: "Software Engineering" }]);
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
@@ -185,6 +186,7 @@ export default function AuditForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [honeypot, setHoneypot] = useState(""); // Hidden anti-bot field
 
   useEffect(() => {
     try {
@@ -248,8 +250,42 @@ export default function AuditForm() {
     e.preventDefault();
     if (!validate()) return;
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 2200));
+
+    try {
+      // Run the audit engine client-side
+      const { runAuditEngine } = await import("@/lib/auditEngine");
+      const auditResult = runAuditEngine(tools, teamSize);
+
+      // Store audit result for the dashboard page
+      localStorage.setItem(
+        "credex_audit_result",
+        JSON.stringify(auditResult)
+      );
+
+      // Submit lead to the API
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          company,
+          role,
+          teamSize,
+          website: honeypot, // honeypot field
+          auditData: {
+            tools,
+            totalCurrentSpend: auditResult.totalCurrentSpend,
+            totalMonthlySavings: auditResult.totalMonthlySavings,
+            totalAnnualSavings: auditResult.totalAnnualSavings,
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("Submission error:", err);
+      // Even if the API call fails, still redirect to dashboard
+      // since audit runs client-side
+    }
+
     setIsSubmitting(false);
     setSubmitted(true);
     setTimeout(() => router.push("/dashboard"), 1000);
@@ -430,6 +466,20 @@ export default function AuditForm() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Honeypot — hidden field for bot detection */}
+            <div className="absolute -left-[9999px]" aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
             </div>
 
             {/* Submit */}

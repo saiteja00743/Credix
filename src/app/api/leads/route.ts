@@ -118,6 +118,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fire confirmation email (best-effort, non-blocking)
+    try {
+      const emailBaseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      fetch(`${emailBaseUrl}/api/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: body.email,
+          name: body.role || undefined,
+          company: body.company || undefined,
+          auditId,
+          monthlySavings: body.auditData?.totalMonthlySavings ?? 0,
+          annualSavings: body.auditData?.totalAnnualSavings ?? 0,
+          toolCount: Array.isArray(body.auditData?.tools)
+            ? body.auditData.tools.length
+            : 0,
+        }),
+      }).catch((err) => console.error("Email dispatch failed:", err));
+    } catch {
+      // Non-fatal — never block lead capture on email failure
+    }
+
     return NextResponse.json({
       success: true,
       id: auditId,

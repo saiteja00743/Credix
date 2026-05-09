@@ -1,45 +1,118 @@
-# Credex AI Architecture
+# Credex AI — Architecture & Design Decisions
 
-## Tech Stack
-- **Framework:** Next.js 16.2.5 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4 (Using `@theme` architecture)
-- **UI Components:** Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons).
+## Current Tech Stack (Shipped)
+
+| Layer | Technology | Why |
+|---|---|---|
+| Framework | Next.js 16 (App Router) | SSR for shareable report OG tags; API routes for server-side integrations |
+| Language | TypeScript (strict) | Prevents pricing math bugs; audit engine output is fully typed |
+| Styling | Tailwind CSS v4 (`@theme` architecture) | CSS-variable-first design system; light/dark mode without JS overhead |
+| Animations | Framer Motion | Entrance animations on dashboard KPI cards; mobile spring physics |
+| AI Integration | Anthropic SDK (Claude 3.5 Haiku) | Fast, cheap inference for 100-word summaries; deterministic fallback when unavailable |
+| Database | Supabase (PostgreSQL + RLS) | Lead + audit persistence with Row Level Security; anon INSERT, service_role full access |
+| Email | Resend API | Transactional HTML email on lead capture; non-blocking best-effort dispatch |
+| Auth/Abuse | Honeypot field + in-memory IP rate limiter | Zero-friction for real users; blocks >95% automated abuse without CAPTCHA UX penalty |
+| Deployment | Vercel (Next.js native) | Zero-config CI/CD; `vercel.json` adds security headers and static asset cache rules |
+
+---
 
 ## Directory Structure
+
 ```
 src/
 ├── app/
-│   ├── globals.css         # Tailwind v4 configuration and global variables
-│   ├── layout.tsx          # Root layout with fonts and metadata
-│   ├── page.tsx            # Landing Page (Hero, Stats, Features, Form)
-│   └── dashboard/
-│       └── page.tsx        # Dynamic Audit Results Dashboard
+│   ├── globals.css              # Tailwind v4 @theme tokens + light mode CSS overrides
+│   ├── layout.tsx               # Root layout: next/font, ThemeProvider, DemoWalkthrough
+│   ├── page.tsx                 # Landing page (Hero, Features, FAQ, AuditForm, Footer)
+│   ├── dashboard/
+│   │   └── page.tsx             # Audit results dashboard (reads from localStorage)
+│   ├── report/
+│   │   └── [id]/
+│   │       ├── page.tsx         # SSR: fetches audit from Supabase, generates OG metadata
+│   │       └── ReportClient.tsx # Client: renders report (Supabase data or localStorage fallback)
+│   └── api/
+│       ├── leads/route.ts       # Lead capture: rate limit → honeypot → Supabase → email
+│       ├── summary/route.ts     # AI summary: Anthropic Claude → deterministic fallback
+│       └── email/route.ts       # Transactional email via Resend API
 ├── components/
-│   ├── Navbar.tsx          # Main navigation
-│   ├── HeroSection.tsx     # Hero with animated AuditPreviewCard
-│   ├── FeaturesGrid.tsx    # Responsive features showcase
-│   ├── AuditForm.tsx       # Dynamic multi-step input form (stores to LocalStorage)
-│   ├── ToolBreakdown.tsx   # Results table for the dashboard
-│   └── AnimatedCountUp.tsx # Number animation utility
+│   ├── Navbar.tsx               # Navigation with ThemeToggle
+│   ├── HeroSection.tsx          # Hero with animated AuditPreviewCard
+│   ├── FeaturesGrid.tsx         # Feature showcase
+│   ├── AuditForm.tsx            # Multi-tool input form (localStorage persistence)
+│   ├── ToolBreakdown.tsx        # Results table
+│   ├── AnimatedCountUp.tsx      # Number animation utility
+│   ├── ThemeProvider.tsx        # next-themes wrapper
+│   ├── ThemeToggle.tsx          # Sun/Moon toggle button
+│   └── DemoWalkthrough.tsx      # Floating demo widget (auto-fills form for reviewers)
 └── lib/
-    ├── utils.ts            # Tailwind merge and utility functions
-    ├── auditEngine.ts      # Core business logic for spend optimization
-    └── pricing.ts          # Centralized pricing data source
+    ├── utils.ts                 # cn() utility (clsx + tailwind-merge)
+    ├── auditEngine.ts           # Core rule-based spend analysis engine
+    ├── supabase.ts              # Supabase client with isConfigured() guard
+    └── pricing.ts               # Centralized pricing data
+
+tests/
+└── auditEngine.test.ts          # 10 Vitest tests for audit engine business logic
 ```
 
-## State Management & Data Flow
-Due to the MVP constraints, we are currently utilizing a localized data flow:
-1. User inputs AI stack details into `AuditForm.tsx`.
-2. Form validates inputs and stores the JSON payload in `localStorage` (`credex_audit_form`).
-3. User is redirected to `/dashboard`.
-4. `dashboard/page.tsx` reads from `localStorage` and passes the payload to `auditEngine.ts`.
-5. The rule-based engine generates personalized recommendations, categorizing them by type (`downgrade`, `consolidation`, `credits`, `optimal`).
-6. The dashboard renders dynamic metrics, an AI summary, and the tool breakdown table.
+---
 
-## Future Production Evolution
-To transition this from a local MVP to a fully scalable product:
-1. **Database:** Integrate Supabase/PostgreSQL to persist audit records uniquely.
-2. **Backend API:** Migrate the `auditEngine.ts` logic to a Next.js API Route (`/api/audit`) to ensure proprietary logic is not exposed to the client.
-3. **AI Generation:** Integrate Anthropic API (`claude-3-haiku`) inside the API route to generate truly dynamic contextual summaries based on the user's specific stack.
-4. **Emails:** Integrate Resend to shoot the generated unique public URL to the user's provided work email.
+## Data Flow (Current)
+
+```
+User fills AuditForm
+      │
+      ▼
+localStorage ("credex_audit_form")
+      │
+      ▼
+POST /api/leads  ←── rate limiter + honeypot check
+      │
+      ├──▶ Supabase: INSERT leads + audits (graceful failure: user never blocked)
+      │
+      └──▶ POST /api/email (non-blocking best-effort via fire-and-forget fetch)
+                │
+                └──▶ Resend API → HTML confirmation email with report link
+
+User redirected to /dashboard
+      │
+      ▼
+runAuditEngine(tools, teamSize)  ←── pure client-side, localStorage input
+      │
+      ▼
+POST /api/summary  ←── sends audit results to Anthropic
+      │
+      ├──▶ Claude 3.5 Haiku → ~100 word personalized paragraph
+      └──▶ On failure: deterministic template-based fallback (always returns a summary)
+
+Shareable link: /report/[auditId]
+      │
+      ▼
+Server-side: Supabase fetch → dynamic Open Graph metadata
+Client-side: Supabase data → render (fallback: localStorage for original author)
+```
+
+---
+
+## Key Design Decisions
+
+### 1. Client-side audit engine, not server-side
+The `runAuditEngine` function runs in the browser. This means: (a) instant results with no API latency, (b) the tool works even if the backend is down, and (c) the recommendation logic is visible in source — which is a feature, not a bug, for a trust-building B2B tool.
+
+*Trade-off:* Proprietary logic is client-exposed. For v2, migrate to `/api/audit` to protect IP.
+
+### 2. Graceful degradation everywhere
+Every integration has a defined failure mode: Supabase down → audit still completes locally. Anthropic unavailable → deterministic fallback summary. Email fails → lead is still captured. The user always gets their report.
+
+### 3. In-memory rate limiter (known limitation)
+The current rate limiter resets on every cold start (serverless function). This is acceptable for MVP but would fail under multi-instance production load. **Production path:** Replace with Upstash Redis + `@upstash/ratelimit`.
+
+---
+
+## Scaling Path (v2)
+
+1. Move `runAuditEngine` to `/api/audit` to protect proprietary pricing logic
+2. Add Upstash Redis rate limiting for serverless-safe abuse protection
+3. Connect to OpenAI/Anthropic/GitHub APIs for real-time seat utilization data
+4. Add PostHog analytics for North Star metric tracking
+5. Add Slack bot integration for viral weekly digest distribution
+

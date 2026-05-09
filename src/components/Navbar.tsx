@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X, Zap } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -30,7 +31,7 @@ export default function Navbar() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           "fixed top-0 w-full z-50 transition-all duration-300",
-          scrolled ? "bg-[#09100c]/90 backdrop-blur-2xl border-b border-[#3c4a42]/30 shadow-[0_4px_30px_rgba(0,0,0,0.3)]" : "bg-transparent border-transparent"
+          scrolled ? "bg-background/90 backdrop-blur-2xl border-b border-outline-variant/30 shadow-[0_4px_30px_rgba(0,0,0,0.3)]" : "bg-transparent border-transparent"
         )}
       >
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between h-20">
@@ -65,6 +66,7 @@ export default function Navbar() {
             >
               View Dashboard
             </Link>
+            <ThemeToggle />
             <Link
               href="#audit-form"
               className="relative group bg-primary text-on-primary px-5 py-2.5 rounded-lg text-[15px] font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_0_20px_rgba(78,222,163,0.25)] hover:shadow-[0_0_28px_rgba(78,222,163,0.4)]"
@@ -92,7 +94,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-20 left-0 right-0 z-40 glass-modal border-b border-[#3c4a42]/20 py-6 px-6"
+            className="fixed top-20 left-0 right-0 z-40 glass-modal border-b border-outline-variant/20 py-6 px-6"
           >
             <div className="flex flex-col gap-5">
               {navLinks.map((link) => (
@@ -105,7 +107,7 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="h-px bg-[#3c4a42]/30 my-1" />
+              <div className="h-px bg-outline-variant/30 my-1" />
               <Link
                 href="/dashboard"
                 onClick={() => setMobileOpen(false)}

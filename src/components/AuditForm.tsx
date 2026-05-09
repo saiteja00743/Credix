@@ -92,10 +92,10 @@ function ToolCard({
             <select
               value={tool.provider}
               onChange={(e) => onUpdate(tool.id, "provider", e.target.value)}
-              className="w-full appearance-none bg-[#0e1511] border border-[#3c4a42]/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
+              className="w-full appearance-none bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
             >
               {AI_PROVIDERS.map((p) => (
-                <option key={p} value={p} className="bg-[#161B22]">
+                <option key={p} value={p} className="bg-surface-container-low">
                   {p}
                 </option>
               ))}
@@ -115,7 +115,7 @@ function ToolCard({
                 value={tool.monthlySpend}
                 onChange={(e) => onUpdate(tool.id, "monthlySpend", e.target.value.replace(/[^0-9.]/g, ""))}
                 placeholder="0.00"
-                className="w-full bg-[#0e1511] border border-[#3c4a42]/40 rounded-lg pl-7 pr-4 py-3 text-[14px] font-mono text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+                className="w-full bg-background border border-outline-variant/40 rounded-lg pl-7 pr-4 py-3 text-[14px] font-mono text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ function ToolCard({
               onChange={(e) => onUpdate(tool.id, "seats", e.target.value)}
               placeholder="1"
               min="1"
-              className="w-full bg-[#0e1511] border border-[#3c4a42]/40 rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+              className="w-full bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
             />
           </div>
         </div>
@@ -141,10 +141,10 @@ function ToolCard({
             <select
               value={tool.useCase}
               onChange={(e) => onUpdate(tool.id, "useCase", e.target.value)}
-              className="w-full appearance-none bg-[#0e1511] border border-[#3c4a42]/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
+              className="w-full appearance-none bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
             >
               {USE_CASES.map((u) => (
-                <option key={u} value={u} className="bg-[#161B22]">
+                <option key={u} value={u} className="bg-surface-container-low">
                   {u}
                 </option>
               ))}
@@ -263,7 +263,7 @@ export default function AuditForm() {
       );
 
       // Submit lead to the API
-      await fetch("/api/leads", {
+      const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -280,10 +280,23 @@ export default function AuditForm() {
           },
         }),
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.id) {
+          localStorage.setItem("credex_last_audit_id", data.id);
+        }
+      } else {
+        // Fallback ID if API fails (e.g., no supabase configured)
+        const fallbackId = `audit_local_${Date.now()}`;
+        localStorage.setItem("credex_last_audit_id", fallbackId);
+      }
     } catch (err) {
       console.error("Submission error:", err);
       // Even if the API call fails, still redirect to dashboard
       // since audit runs client-side
+      const fallbackId = `audit_local_${Date.now()}`;
+      localStorage.setItem("credex_last_audit_id", fallbackId);
     }
 
     setIsSubmitting(false);
@@ -401,7 +414,7 @@ export default function AuditForm() {
                       onChange={(e) => { setCompany(e.target.value); setErrors((p) => ({ ...p, company: undefined })); }}
                       placeholder="Acme Corp"
                       className={cn(
-                        "w-full bg-[#0e1511] border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
+                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
                         errors.company
                           ? "border-[#ffb4ab]/60 focus:border-[#ffb4ab] focus:ring-1 focus:ring-[#ffb4ab]/30"
                           : "border-[#3c4a42]/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
@@ -418,7 +431,7 @@ export default function AuditForm() {
                       onChange={(e) => { setRole(e.target.value); setErrors((p) => ({ ...p, role: undefined })); }}
                       placeholder="CTO, CFO, Procurement Lead…"
                       className={cn(
-                        "w-full bg-[#0e1511] border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
+                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
                         errors.role
                           ? "border-[#ffb4ab]/60 focus:border-[#ffb4ab] focus:ring-1 focus:ring-[#ffb4ab]/30"
                           : "border-[#3c4a42]/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
@@ -492,7 +505,7 @@ export default function AuditForm() {
                 "w-full py-5 rounded-xl text-[16px] font-bold flex items-center justify-center gap-3 transition-all duration-300",
                 submitted
                   ? "bg-primary/20 text-primary border border-primary/30"
-                  : "bg-primary text-on-primary shadow-[0_0_24px_rgba(78,222,163,0.3)] hover:shadow-[0_0_40px_rgba(78,222,163,0.45)]"
+                  : "bg-primary text-background shadow-[0_0_24px_rgba(78,222,163,0.3)] hover:shadow-[0_0_40px_rgba(78,222,163,0.45)]"
               )}
             >
               {submitted ? (

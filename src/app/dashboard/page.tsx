@@ -57,7 +57,7 @@ function SharePanel({ resultId }: { resultId: string }) {
       </div>
 
       <div className="flex gap-3">
-        <button className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
+        <button onClick={() => window.open(link, '_blank')} className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
           <Share2 className="w-4 h-4" /> Share
         </button>
         <button className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
@@ -164,20 +164,22 @@ function InsightCard({ audit }: { audit: AuditResult }) {
 
 export default function DashboardPage() {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [formData, setFormData] = useState<any>(null);
+  const [auditId, setAuditId] = useState<string>("abc1234");
   
   useEffect(() => {
     try {
       const saved = localStorage.getItem("credex_audit_form");
       if (saved) {
         const parsed = JSON.parse(saved);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFormData(parsed);
         if (parsed.tools && parsed.tools.length > 0) {
           const result = runAuditEngine(parsed.tools, parsed.teamSize);
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setAuditResult(result);
         }
+      }
+      const savedId = localStorage.getItem("credex_last_audit_id");
+      if (savedId) {
+        setAuditId(savedId);
       }
     } catch (e) {
       console.error("Failed to load audit", e);
@@ -235,7 +237,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0e1511]/90 backdrop-blur-xl border-b border-[#3c4a42]/20">
+      <nav className="fixed top-0 w-full z-50 bg-background/90 backdrop-blur-xl border-b border-[#3c4a42]/20">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between h-20">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -327,7 +329,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.5 }}
             className="md:col-span-4"
           >
-            <SharePanel resultId={formData?.company?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || "abc123"} />
+            <SharePanel resultId={auditId} />
           </motion.div>
         </section>
 

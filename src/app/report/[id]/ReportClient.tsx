@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { runAuditEngine, AuditResult } from "@/lib/auditEngine";
 import CountUp from "@/components/AnimatedCountUp";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * ReportClient — The publicly shareable audit report page.
@@ -100,6 +101,8 @@ export default function ReportClient({ audit, auditId }: { audit: any; auditId: 
             >
               Run Your Audit <ExternalLink className="w-3.5 h-3.5" />
             </Link>
+            <div className="h-6 w-[1px] bg-outline-variant/30 hidden md:block" />
+            <ThemeToggle />
           </div>
         </div>
       </nav>

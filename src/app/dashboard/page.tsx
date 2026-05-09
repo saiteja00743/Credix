@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Zap, Download, Share2, Copy, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import CountUp from "@/components/AnimatedCountUp";
 import ToolBreakdownTable, { UpsellBanner } from "@/components/ToolBreakdown";
 import { useState, useEffect } from "react";
@@ -255,6 +256,8 @@ export default function DashboardPage() {
             <Link href="/" className="text-[14px] font-medium text-on-surface-variant hover:text-on-surface transition-colors">
               ← Back to Home
             </Link>
+            <div className="h-6 w-[1px] bg-outline-variant/30 hidden md:block" />
+            <ThemeToggle />
           </div>
         </div>
       </nav>

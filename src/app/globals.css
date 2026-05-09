@@ -48,11 +48,11 @@
   --color-surface-container-high: #242c27;
   --color-surface-container-highest: #2f3632;
   --color-on-surface: #dde4dd;
-  --color-on-surface-variant: #bbcabf;
+  --color-on-surface-variant: #d1dcd4;
   --color-inverse-surface: #dde4dd;
   --color-inverse-on-surface: #2b322d;
-  --color-outline: #86948a;
-  --color-outline-variant: #3c4a42;
+  --color-outline: #a0afa4;
+  --color-outline-variant: #4a5a51;
   --color-surface-tint: #4edea3;
 
   /* Typography */
@@ -190,8 +190,8 @@ html, body {
 
 /* ===== Selection ===== */
 ::selection {
-  background: rgba(78, 222, 163, 0.2);
-  color: #dde4dd;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
 }
 
 /* ===== Spinner ===== */

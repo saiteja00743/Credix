@@ -76,7 +76,7 @@ function ToolCard({
           <button
             type="button"
             onClick={() => onRemove(tool.id)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#ffb4ab]/50 hover:text-[#ffb4ab] hover:bg-[#ffb4ab]/10 transition-all duration-200"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#ffb4ab]/80 hover:text-[#ffb4ab] hover:bg-[#ffb4ab]/10 transition-all duration-200"
             aria-label="Remove tool"
           >
             <Trash2 className="w-4 h-4" />
@@ -115,7 +115,7 @@ function ToolCard({
                 value={tool.monthlySpend}
                 onChange={(e) => onUpdate(tool.id, "monthlySpend", e.target.value.replace(/[^0-9.]/g, ""))}
                 placeholder="0.00"
-                className="w-full bg-background border border-outline-variant/40 rounded-lg pl-7 pr-4 py-3 text-[14px] font-mono text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+                className="w-full bg-background border border-outline-variant/40 rounded-lg pl-7 pr-4 py-3 text-[14px] font-mono text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ function ToolCard({
               onChange={(e) => onUpdate(tool.id, "seats", e.target.value)}
               placeholder="1"
               min="1"
-              className="w-full bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+              className="w-full bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
             />
           </div>
         </div>
@@ -414,7 +414,7 @@ export default function AuditForm() {
                       onChange={(e) => { setCompany(e.target.value); setErrors((p) => ({ ...p, company: undefined })); }}
                       placeholder="Acme Corp"
                       className={cn(
-                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
+                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none transition-all",
                         errors.company
                           ? "border-[#ffb4ab]/60 focus:border-[#ffb4ab] focus:ring-1 focus:ring-[#ffb4ab]/30"
                           : "border-[#3c4a42]/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
@@ -431,7 +431,7 @@ export default function AuditForm() {
                       onChange={(e) => { setRole(e.target.value); setErrors((p) => ({ ...p, role: undefined })); }}
                       placeholder="CTO, CFO, Procurement Lead…"
                       className={cn(
-                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
+                        "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none transition-all",
                         errors.role
                           ? "border-[#ffb4ab]/60 focus:border-[#ffb4ab] focus:ring-1 focus:ring-[#ffb4ab]/30"
                           : "border-[#3c4a42]/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
@@ -449,7 +449,7 @@ export default function AuditForm() {
                     onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })); }}
                     placeholder="you@company.com"
                     className={cn(
-                      "w-full bg-[#0e1511] border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none transition-all",
+                      "w-full bg-background border rounded-lg px-4 py-3 text-[14px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none transition-all",
                       errors.email
                         ? "border-[#ffb4ab]/60 focus:border-[#ffb4ab] focus:ring-1 focus:ring-[#ffb4ab]/30"
                         : "border-[#3c4a42]/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"

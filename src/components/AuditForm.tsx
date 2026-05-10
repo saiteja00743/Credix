@@ -207,8 +207,8 @@ export default function AuditForm() {
         const parsed = JSON.parse(saved);
         if (parsed.tools && Array.isArray(parsed.tools)) {
           // Sanitize old provider names from localStorage to match new schema
-          const sanitizedTools = parsed.tools.map((t: any) => {
-            let p = t.provider;
+          const sanitizedTools = parsed.tools.map((t: Record<string, unknown>) => {
+            let p = t.provider as string;
             if (p === "ChatGPT / OpenAI") p = "ChatGPT";
             if (p === "Claude / Anthropic") p = "Claude";
             if (p === "Gemini / Google") p = "Gemini";
@@ -218,7 +218,7 @@ export default function AuditForm() {
             if (!AI_PROVIDERS.includes(p)) p = "Cursor";
             
             // Ensure plan is set and valid for the provider
-            let plan = t.plan;
+            let plan = t.plan as string | undefined;
             if (!plan || !PROVIDER_PLANS[p]?.includes(plan)) {
               plan = PROVIDER_PLANS[p]?.[0] || "";
             }

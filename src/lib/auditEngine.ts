@@ -41,7 +41,6 @@ export interface AuditResult {
   }[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResult {
   let totalCurrentSpend = 0;
   let totalMonthlySavings = 0;
@@ -57,8 +56,6 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
       reasoning: "Your current spending is perfectly optimized for this tool.",
       type: "optimal"
     };
-
-    const costPerSeat = seats > 0 ? spend / seats : spend;
 
     if (tool.provider === "ChatGPT") {
       if (tool.plan === "Team" && seats === 2) {

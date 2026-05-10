@@ -68,7 +68,7 @@ function SharePanel({ resultId }: { resultId: string }) {
                   text: 'Check out my AI spend optimization report:',
                   url: link,
                 });
-              } catch (err) {
+              } catch {
                 // User cancelled or share failed
               }
             } else {

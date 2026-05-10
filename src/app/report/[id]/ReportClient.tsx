@@ -205,7 +205,7 @@ export default function ReportClient({ audit, auditId }: { audit: any; auditId: 
                     totalMonthlySavings: monthlySavings,
                     totalAnnualSavings: annualSavings,
                     toolResults: tools.map((t) => ({ tool: t, recommendation: t.recommendation })),
-                  } as any
+                  } as unknown as import("@/lib/auditEngine").AuditResult
                 }
               />
             </motion.div>

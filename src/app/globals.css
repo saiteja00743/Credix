@@ -200,3 +200,40 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* ===== Print Styles (Export PDF) ===== */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide nav, buttons, share panels, theme toggles, and any ambient glow */
+  nav, .ambient-orb, button, .lucide-share-2, .lucide-download {
+    display: none !important;
+  }
+
+  /* Force glass cards to be standard white boxes for clean printing */
+  .glass-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  /* Force dark text for readability */
+  h1, h2, h3, p, span, td, th {
+    color: black !important;
+  }
+  
+  /* Adjust layout to remove padding reserved for nav */
+  main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+}

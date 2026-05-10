@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { runAuditEngine, AuditResult } from "@/lib/auditEngine";
 import CountUp from "@/components/AnimatedCountUp";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import BenchmarkCard from "@/components/BenchmarkCard";
 
 /**
  * ReportClient — The publicly shareable audit report page.
@@ -188,6 +189,25 @@ export default function ReportClient({ audit, auditId }: { audit: any; auditId: 
                   </p>
                 </motion.div>
               ))}
+            </motion.div>
+
+            {/* Benchmark Mode */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <BenchmarkCard
+                audit={
+                  {
+                    ...localAudit,
+                    totalCurrentSpend: currentSpend,
+                    totalMonthlySavings: monthlySavings,
+                    totalAnnualSavings: annualSavings,
+                    toolResults: tools.map((t) => ({ tool: t, recommendation: t.recommendation })),
+                  } as any
+                }
+              />
             </motion.div>
 
             {/* ── Recommendations list ── */}

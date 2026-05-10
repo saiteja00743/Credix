@@ -1,10 +1,27 @@
+import { calculateBenchmark } from "./benchmarkData";
+
 export interface ToolEntry {
   id: string;
   provider: string;
+  plan: string;
   monthlySpend: string;
   seats: string;
   useCase: string;
 }
+
+export const PROVIDER_PLANS: Record<string, string[]> = {
+  "Cursor": ["Hobby", "Pro", "Business", "Enterprise"],
+  "GitHub Copilot": ["Individual", "Business", "Enterprise"],
+  "Claude": ["Free", "Pro", "Team", "Enterprise", "API Direct"],
+  "ChatGPT": ["Plus", "Team", "Enterprise", "API Direct"],
+  "Anthropic API": ["Usage-based"],
+  "OpenAI API": ["Usage-based"],
+  "Gemini": ["Pro", "Ultra / Advanced", "API"],
+  "Windsurf": ["Free", "Pro", "Enterprise"],
+  "Midjourney": ["Basic", "Standard", "Pro", "Mega"],
+  "Perplexity AI": ["Free", "Pro"],
+  "Other / Custom API": ["Custom"],
+};
 
 export interface Recommendation {
   action: string;
@@ -17,6 +34,7 @@ export interface AuditResult {
   totalCurrentSpend: number;
   totalMonthlySavings: number;
   totalAnnualSavings: number;
+  benchmark: ReturnType<typeof calculateBenchmark>;
   toolResults: {
     tool: ToolEntry;
     recommendation: Recommendation;
@@ -42,46 +60,46 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
 
     const costPerSeat = seats > 0 ? spend / seats : spend;
 
-    if (tool.provider === "ChatGPT / OpenAI") {
-      if (seats === 2 && spend >= 50) {
+    if (tool.provider === "ChatGPT") {
+      if (tool.plan === "Team" && seats === 2) {
         recommendation = {
-          action: "Downgrade to ChatGPT Plus (Shared/Individual)",
+          action: "Downgrade to ChatGPT Plus (Shared)",
           savings: spend - 40,
-          reasoning: "ChatGPT Team requires a minimum of 2 seats ($50/mo), but small teams often operate efficiently on 2 individual Plus accounts ($40/mo) without enterprise management features.",
+          reasoning: "ChatGPT Team requires a minimum of 2 seats ($50/mo). Small teams can often operate on 2 individual Plus accounts ($40/mo) if they don't need centralized workspace management.",
           type: "downgrade"
         };
-      } else if (costPerSeat > 25 && seats >= 2) {
+      } else if (tool.plan === "Enterprise") {
         recommendation = {
-          action: "Optimize Enterprise/API Spend",
-          savings: spend - (25 * seats),
-          reasoning: "You are paying a premium per seat. Moving to standard ChatGPT Team ($25/user) or auditing API overages could reduce waste.",
+          action: "Optimize Enterprise Usage",
+          savings: spend * 0.15,
+          reasoning: "Enterprise plans often include unused seats or features. We recommend a seat audit to reduce waste by 15%.",
           type: "downgrade"
         };
       } else if (tool.useCase === "Software Engineering" && tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot")) {
         recommendation = {
           action: "Consolidate Dev Tools",
           savings: spend,
-          reasoning: "You are paying for ChatGPT while also paying for a dedicated AI coding assistant (Cursor/Copilot) which already includes premium LLM access.",
+          reasoning: "You are paying for ChatGPT while also using a dedicated AI coding assistant (Cursor/Copilot) which includes premium LLM access.",
           type: "consolidation"
         };
-      } else if (spend > 500) {
+      } else if (tool.plan === "API Direct" && spend > 500) {
         recommendation = {
           action: "Apply Startup Cloud Credits",
-          savings: spend * 0.2, // Estimate 20% savings via credits/commit
+          savings: spend * 0.2,
           reasoning: "High API usage detected. We can help you secure OpenAI infrastructure credits through Azure or AWS startups programs.",
           type: "credits"
         };
       }
     } 
-    else if (tool.provider === "Claude / Anthropic") {
-      if (costPerSeat > 20 && seats < 5) {
+    else if (tool.provider === "Claude") {
+      if (tool.plan === "Team" && seats < 5) {
         recommendation = {
           action: "Downgrade to Claude Pro",
           savings: spend - (20 * seats),
-          reasoning: "Claude Team ($30/user) requires a minimum of 5 seats. Using individual Claude Pro accounts ($20/user) is more cost-effective for small teams.",
+          reasoning: "Claude Team ($30/user) requires a minimum of 5 seats. Using individual Claude Pro accounts ($20/user) is more cost-effective for teams under 5.",
           type: "downgrade"
         };
-      } else if (spend > 500) {
+      } else if (tool.plan === "API Direct" && spend > 500) {
         recommendation = {
           action: "Apply Infrastructure Credits",
           savings: spend * 0.2,
@@ -91,24 +109,24 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
       }
     }
     else if (tool.provider === "Cursor") {
-      if (costPerSeat >= 40) {
+      if (tool.plan === "Business") {
         recommendation = {
           action: "Downgrade to Cursor Pro",
           savings: spend - (20 * seats),
-          reasoning: "Cursor Business ($40/user) adds centralized billing and privacy. Unless mandated by compliance, Cursor Pro ($20/user) offers the exact same AI capabilities.",
+          reasoning: "Cursor Business ($40/user) adds centralized billing and privacy. Unless mandated by compliance, Cursor Pro ($20/user) offers identical AI capabilities.",
           type: "downgrade"
         };
       }
     }
     else if (tool.provider === "GitHub Copilot") {
-      if (costPerSeat >= 39) {
+      if (tool.plan === "Enterprise") {
         recommendation = {
           action: "Downgrade to Copilot Business",
           savings: spend - (19 * seats),
           reasoning: "Copilot Enterprise ($39/user) is rarely utilized fully by startups. Copilot Business ($19/user) is sufficient for 95% of engineering teams.",
           type: "downgrade"
         };
-      } else if (costPerSeat >= 19 && seats <= 3) {
+      } else if (tool.plan === "Business" && seats <= 3) {
          recommendation = {
           action: "Downgrade to Copilot Individual",
           savings: spend - (10 * seats),
@@ -127,51 +145,44 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
         };
       }
     }
-    else if (tool.provider === "Gemini / Google") {
-      if (costPerSeat > 20 && seats >= 2) {
+    else if (tool.provider === "Gemini") {
+      if (tool.plan === "Ultra / Advanced" && seats >= 2) {
         recommendation = {
           action: "Optimize Gemini Seat Count",
           savings: spend - (20 * seats),
-          reasoning: "At $20/user/month for Google One AI Premium (Gemini Ultra), verify that all seats are actively using advanced features. Users who only need basic access can use the free Gemini tier.",
+          reasoning: "Verify that all seats are actively using advanced features. Users who only need basic access can use the free Gemini tier.",
           type: "downgrade"
         };
       } else if (tool.useCase === "Software Engineering" && tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot")) {
         recommendation = {
-          action: "Consolidate with Existing Dev Tools",
+          action: "Consolidate with Dev Tools",
           savings: spend,
-          reasoning: "Gemini for coding overlaps significantly with your existing Cursor/Copilot subscription. Most engineering teams don't need both a dedicated code assistant and a general-purpose LLM for coding.",
+          reasoning: "Gemini for coding overlaps significantly with your existing Cursor/Copilot subscription. Pick one to eliminate redundancy.",
           type: "consolidation"
         };
       }
     }
     else if (tool.provider === "Perplexity AI") {
-      if (costPerSeat > 20) {
-        recommendation = {
-          action: "Audit Perplexity Pro Usage",
-          savings: spend - (20 * seats),
-          reasoning: "Perplexity Pro is $20/user/month. If you're paying more, you may have unused seats. Consider whether free-tier Perplexity covers most research needs.",
-          type: "downgrade"
-        };
-      } else if (tools.some(t => t.provider === "ChatGPT / OpenAI" || t.provider === "Claude / Anthropic") && recommendation.type === "optimal") {
+      if (tool.plan === "Pro" && tools.some(t => t.provider === "ChatGPT" || t.provider === "Claude")) {
         recommendation = {
           action: "Evaluate Research Tool Overlap",
           savings: spend * 0.5,
-          reasoning: "Perplexity Pro's core value is AI-powered research. With ChatGPT/Claude already in your stack, consider whether the free Perplexity tier plus your existing LLMs can cover research use cases.",
+          reasoning: "Perplexity Pro's core value is AI-powered research. With ChatGPT/Claude already in your stack, consider whether the free Perplexity tier covers your needs.",
           type: "consolidation"
         };
       }
     }
-    else if (tool.provider === "Windsurf / Codeium") {
-      if (costPerSeat > 15) {
+    else if (tool.provider === "Windsurf") {
+      if (tool.plan === "Enterprise") {
         recommendation = {
           action: "Downgrade to Windsurf Pro",
           savings: spend - (15 * seats),
-          reasoning: "Windsurf Pro ($15/user/month) provides full AI-assisted coding features. Enterprise tiers add admin controls that most small teams don't need.",
+          reasoning: "Windsurf Pro ($15/user) provides full AI coding features. Enterprise tiers add admin controls that most small teams don't need yet.",
           type: "downgrade"
         };
-      } else if (tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot") && recommendation.type === "optimal") {
+      } else if (tools.some(t => t.provider === "Cursor" || t.provider === "GitHub Copilot")) {
         recommendation = {
-          action: "Eliminate Code Assistant Redundancy",
+          action: "Eliminate Assistant Redundancy",
           savings: spend,
           reasoning: "Running Windsurf alongside Cursor or GitHub Copilot is redundant. Standardize on one AI code editor to eliminate duplicate spending.",
           type: "consolidation"
@@ -189,8 +200,8 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
 
     // Cross-platform Overlap check: Claude + ChatGPT
     if (
-      tool.provider === "Claude / Anthropic" &&
-      tools.some(t => t.provider === "ChatGPT / OpenAI") && 
+      tool.provider === "Claude" &&
+      tools.some(t => t.provider === "ChatGPT") && 
       recommendation.type === "optimal"
     ) {
         recommendation = {
@@ -227,6 +238,7 @@ export function runAuditEngine(tools: ToolEntry[], _teamSize: string): AuditResu
     totalCurrentSpend,
     totalMonthlySavings,
     totalAnnualSavings: totalMonthlySavings * 12,
+    benchmark: calculateBenchmark(totalCurrentSpend, _teamSize),
     toolResults,
   };
 }

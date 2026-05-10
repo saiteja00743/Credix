@@ -18,10 +18,10 @@ export default function DemoWalkthrough() {
     setTimeout(() => {
       const demoState = {
         tools: [
-          { id: "1", provider: "ChatGPT / OpenAI", monthlySpend: "4000", seats: "80", useCase: "Software Engineering" },
-          { id: "2", provider: "Claude / Anthropic", monthlySpend: "1200", seats: "40", useCase: "Research & Writing" },
-          { id: "3", provider: "GitHub Copilot", monthlySpend: "1560", seats: "40", useCase: "Software Engineering" },
-          { id: "4", provider: "Midjourney", monthlySpend: "300", seats: "5", useCase: "Marketing / Creative" },
+          { id: "1", provider: "ChatGPT", plan: "Team", monthlySpend: "4000", seats: "80", useCase: "Software Engineering" },
+          { id: "2", provider: "Claude", plan: "Team", monthlySpend: "1200", seats: "40", useCase: "Research & Writing" },
+          { id: "3", provider: "GitHub Copilot", plan: "Enterprise", monthlySpend: "1560", seats: "40", useCase: "Software Engineering" },
+          { id: "4", provider: "Midjourney", plan: "Pro", monthlySpend: "300", seats: "5", useCase: "Marketing / Creative" },
         ],
         company: "Acme Corp (Demo)",
         role: "Head of Engineering",

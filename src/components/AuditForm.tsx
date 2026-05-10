@@ -6,18 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, ArrowRight, Lock, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { PROVIDER_PLANS } from "@/lib/auditEngine";
 
-const AI_PROVIDERS = [
-  "Cursor",
-  "ChatGPT / OpenAI",
-  "Claude / Anthropic",
-  "GitHub Copilot",
-  "Gemini / Google",
-  "Windsurf / Codeium",
-  "Midjourney",
-  "Perplexity AI",
-  "Other / Custom API",
-];
+const AI_PROVIDERS = Object.keys(PROVIDER_PLANS);
 
 const USE_CASES = [
   "Customer Support",
@@ -33,6 +24,7 @@ const TEAM_SIZES = ["1–10", "11–50", "51–250", "251–1,000", "1,000+"];
 interface ToolEntry {
   id: string;
   provider: string;
+  plan: string;
   monthlySpend: string;
   seats: string;
   useCase: string;
@@ -86,21 +78,41 @@ function ToolCard({
 
       <div className="space-y-4">
         {/* Provider select */}
-        <div className="space-y-1.5">
-          <label className="text-[13px] font-medium text-on-surface">AI Provider</label>
-          <div className="relative">
-            <select
-              value={tool.provider}
-              onChange={(e) => onUpdate(tool.id, "provider", e.target.value)}
-              className="w-full appearance-none bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
-            >
-              {AI_PROVIDERS.map((p) => (
-                <option key={p} value={p} className="bg-surface-container-low">
-                  {p}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-on-surface">AI Provider</label>
+            <div className="relative">
+              <select
+                value={tool.provider}
+                onChange={(e) => onUpdate(tool.id, "provider", e.target.value)}
+                className="w-full appearance-none bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
+              >
+                {AI_PROVIDERS.map((p) => (
+                  <option key={p} value={p} className="bg-surface-container-low">
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[13px] font-medium text-on-surface">Plan</label>
+            <div className="relative">
+              <select
+                value={tool.plan}
+                onChange={(e) => onUpdate(tool.id, "plan", e.target.value)}
+                className="w-full appearance-none bg-background border border-outline-variant/40 rounded-lg px-4 py-3 text-[14px] text-on-surface focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-10 cursor-pointer"
+              >
+                {PROVIDER_PLANS[tool.provider]?.map((p) => (
+                  <option key={p} value={p} className="bg-surface-container-low">
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -177,7 +189,7 @@ function EmptyToolSlot({ onClick }: { onClick: () => void }) {
 
 export default function AuditForm() {
   const router = useRouter();
-  const [tools, setTools] = useState<ToolEntry[]>([{ id: "1", provider: "Cursor", monthlySpend: "", seats: "", useCase: "Software Engineering" }]);
+  const [tools, setTools] = useState<ToolEntry[]>([{ id: "1", provider: "Cursor", plan: "Pro", monthlySpend: "", seats: "", useCase: "Software Engineering" }]);
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
@@ -193,7 +205,28 @@ export default function AuditForm() {
       const saved = localStorage.getItem("credex_audit_form");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.tools) setTools(parsed.tools);
+        if (parsed.tools && Array.isArray(parsed.tools)) {
+          // Sanitize old provider names from localStorage to match new schema
+          const sanitizedTools = parsed.tools.map((t: any) => {
+            let p = t.provider;
+            if (p === "ChatGPT / OpenAI") p = "ChatGPT";
+            if (p === "Claude / Anthropic") p = "Claude";
+            if (p === "Gemini / Google") p = "Gemini";
+            if (p === "Windsurf / Codeium") p = "Windsurf";
+            
+            // If the provider somehow isn't in our new list, default to Cursor
+            if (!AI_PROVIDERS.includes(p)) p = "Cursor";
+            
+            // Ensure plan is set and valid for the provider
+            let plan = t.plan;
+            if (!plan || !PROVIDER_PLANS[p]?.includes(plan)) {
+              plan = PROVIDER_PLANS[p]?.[0] || "";
+            }
+
+            return { ...t, provider: p, plan };
+          });
+          setTools(sanitizedTools);
+        }
         if (parsed.company) setCompany(parsed.company);
         if (parsed.role) setRole(parsed.role);
         if (parsed.email) setEmail(parsed.email);
@@ -205,6 +238,7 @@ export default function AuditForm() {
     setIsLoaded(true);
   }, []);
 
+
   useEffect(() => {
     if (!isLoaded) return;
     localStorage.setItem("credex_audit_form", JSON.stringify({ tools, company, role, email, teamSize }));
@@ -212,16 +246,20 @@ export default function AuditForm() {
 
   const addTool = () => {
     if (tools.length >= 6) return;
-    setTools((prev) => [
-      ...prev,
-      {
-        id: String(Date.now()),
-        provider: AI_PROVIDERS[prev.length % AI_PROVIDERS.length],
-        monthlySpend: "",
-        seats: "",
-        useCase: USE_CASES[0],
-      },
-    ]);
+    setTools((prev) => {
+      const newProvider = AI_PROVIDERS[prev.length % AI_PROVIDERS.length];
+      return [
+        ...prev,
+        {
+          id: String(Date.now()),
+          provider: newProvider,
+          plan: PROVIDER_PLANS[newProvider][0],
+          monthlySpend: "",
+          seats: "",
+          useCase: USE_CASES[0],
+        },
+      ];
+    });
   };
 
   const removeTool = (id: string) => {
@@ -230,7 +268,17 @@ export default function AuditForm() {
 
   const updateTool = (id: string, field: keyof ToolEntry, value: string) => {
     setTools((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, [field]: value } : t))
+      prev.map((t) => {
+        if (t.id === id) {
+          const updated = { ...t, [field]: value };
+          // If provider changed, reset plan to the first available for that provider
+          if (field === "provider") {
+            updated.plan = PROVIDER_PLANS[value][0];
+          }
+          return updated;
+        }
+        return t;
+      })
     );
   };
 

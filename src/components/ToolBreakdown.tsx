@@ -82,7 +82,9 @@ export default function ToolBreakdownTable({ audit }: { audit?: AuditResult }) {
                         </div>
                         <div>
                           <p className="font-medium text-on-surface text-[14px]">{tool.provider}</p>
-                          <p className="text-[12px] text-on-surface-variant">{tool.seats} active seats</p>
+                          <p className="text-[12px] text-on-surface-variant">
+                            {tool.plan} Plan · {tool.seats} seats
+                          </p>
                         </div>
                       </div>
                     </td>

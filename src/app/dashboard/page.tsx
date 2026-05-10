@@ -9,6 +9,7 @@ import ToolBreakdownTable, { UpsellBanner } from "@/components/ToolBreakdown";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { runAuditEngine, AuditResult } from "@/lib/auditEngine";
+import BenchmarkCard from "@/components/BenchmarkCard";
 
 function SharePanel({ resultId }: { resultId: string }) {
   const [copied, setCopied] = useState(false);
@@ -58,10 +59,27 @@ function SharePanel({ resultId }: { resultId: string }) {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={() => window.open(link, '_blank')} className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
+        <button 
+          onClick={async () => {
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: 'Credex AI Spend Audit',
+                  text: 'Check out my AI spend optimization report:',
+                  url: link,
+                });
+              } catch (err) {
+                // User cancelled or share failed
+              }
+            } else {
+              copy(); // Fallback to copy if native share not supported
+            }
+          }} 
+          className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors"
+        >
           <Share2 className="w-4 h-4" /> Share
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
+        <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-bright border border-[#3c4a42]/20 rounded-xl py-3 text-[13px] font-medium transition-colors">
           <Download className="w-4 h-4" /> Export PDF
         </button>
       </div>
@@ -330,11 +348,20 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="md:col-span-4"
+            className="md:col-span-4 print:hidden"
           >
             <SharePanel resultId={auditId} />
           </motion.div>
         </section>
+
+        {/* Benchmark Mode */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.52 }}
+        >
+          <BenchmarkCard audit={auditResult} />
+        </motion.div>
 
         {/* Tool breakdown table */}
         <motion.div

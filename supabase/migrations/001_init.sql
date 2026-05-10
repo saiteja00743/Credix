@@ -40,8 +40,8 @@ create table if not exists public.audits (
 
 -- Foreign key — every audit must have a corresponding lead
 alter table public.audits
-  add constraint audits_lead_email_fk
-  foreign key (lead_email) references public.leads (email)
+  add constraint audits_lead_id_fk
+  foreign key (id) references public.leads (id)
   on delete cascade
   deferrable initially deferred;
 

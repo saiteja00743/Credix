@@ -4,11 +4,12 @@ import { runAuditEngine, ToolEntry } from "../src/lib/auditEngine";
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function tool(
   provider: string,
+  plan: string,
   monthlySpend: string,
   seats: string,
   useCase = "General Purpose"
 ): ToolEntry {
-  return { id: crypto.randomUUID(), provider, monthlySpend, seats, useCase };
+  return { id: crypto.randomUUID(), provider, plan, monthlySpend, seats, useCase };
 }
 
 // ─── Test Suite ───────────────────────────────────────────────────────────────
@@ -16,7 +17,7 @@ describe("runAuditEngine", () => {
   // 1 ─ Baseline math
   it("correctly sums totalCurrentSpend across all tools", () => {
     const result = runAuditEngine(
-      [tool("ChatGPT / OpenAI", "500", "10"), tool("Midjourney", "30", "1")],
+      [tool("ChatGPT", "Team", "500", "10"), tool("Midjourney", "Basic", "30", "1")],
       "11–50"
     );
     expect(result.totalCurrentSpend).toBe(530);
@@ -25,17 +26,17 @@ describe("runAuditEngine", () => {
   // 2 ─ Annual savings = 12x monthly
   it("calculates totalAnnualSavings as 12x totalMonthlySavings", () => {
     const result = runAuditEngine(
-      [tool("GitHub Copilot", "390", "10")], // $39/seat → downgrade to $19 saves $200
+      [tool("GitHub Copilot", "Enterprise", "390", "10")], // $39/seat → downgrade to $19 saves $200
       "11–50"
     );
     expect(result.totalAnnualSavings).toBe(result.totalMonthlySavings * 12);
   });
 
-  // 3 ─ ChatGPT high-cost-per-seat triggers downgrade recommendation
-  it("flags ChatGPT overspend when cost-per-seat exceeds $25", () => {
-    // 4 seats, $200/mo → $50/seat — should trigger optimize action
+  // 3 ─ ChatGPT Team plan optimization (switch to Pro)
+  it("flags ChatGPT Team for small teams when seats < 3", () => {
+    // 2 seats, $60/mo → should trigger optimize action
     const result = runAuditEngine(
-      [tool("ChatGPT / OpenAI", "200", "4")],
+      [tool("ChatGPT", "Team", "60", "2")],
       "1–10"
     );
     const rec = result.toolResults[0].recommendation;
@@ -47,8 +48,8 @@ describe("runAuditEngine", () => {
   it("detects redundancy when Cursor and GitHub Copilot are both in the stack", () => {
     const result = runAuditEngine(
       [
-        tool("Cursor", "40", "2"),
-        tool("GitHub Copilot", "38", "2"),
+        tool("Cursor", "Pro", "40", "2"),
+        tool("GitHub Copilot", "Business", "38", "2"),
       ],
       "1–10"
     );
@@ -62,22 +63,22 @@ describe("runAuditEngine", () => {
   it("flags LLM redundancy when both ChatGPT and Claude are used", () => {
     const result = runAuditEngine(
       [
-        tool("ChatGPT / OpenAI", "50", "2"),
-        tool("Claude / Anthropic", "60", "3"),
+        tool("ChatGPT", "Plus", "40", "2"),
+        tool("Claude", "Pro", "60", "3"),
       ],
       "1–10"
     );
     const claudeRec = result.toolResults.find(
-      (r) => r.tool.provider === "Claude / Anthropic"
+      (r) => r.tool.provider === "Claude"
     )!.recommendation;
     expect(claudeRec.type).toBe("consolidation");
   });
 
   // 6 ─ Optimal stack produces zero savings
   it("returns optimal recommendation with zero savings for a well-priced stack", () => {
-    // ChatGPT Team at exactly $25/seat = optimal
+    // ChatGPT Plus at exactly $20/seat = optimal
     const result = runAuditEngine(
-      [tool("ChatGPT / OpenAI", "25", "1")],
+      [tool("ChatGPT", "Plus", "20", "1")],
       "1–10"
     );
     const rec = result.toolResults[0].recommendation;
@@ -89,7 +90,7 @@ describe("runAuditEngine", () => {
   it("recommends downgrading GitHub Copilot Enterprise to Business", () => {
     // 10 seats at $39/seat = $390/mo → should downgrade to $19 saves $200
     const result = runAuditEngine(
-      [tool("GitHub Copilot", "390", "10")],
+      [tool("GitHub Copilot", "Enterprise", "390", "10")],
       "11–50"
     );
     const rec = result.toolResults[0].recommendation;
@@ -100,7 +101,7 @@ describe("runAuditEngine", () => {
   // 8 ─ High API spend triggers credits recommendation
   it("recommends infrastructure credits for OpenAI API spend over $500", () => {
     const result = runAuditEngine(
-      [tool("ChatGPT / OpenAI", "1000", "1")],
+      [tool("ChatGPT", "API Direct", "1000", "1")],
       "51–250"
     );
     const rec = result.toolResults[0].recommendation;
@@ -119,7 +120,7 @@ describe("runAuditEngine", () => {
   // 10 ─ Midjourney Pro triggers downgrade to Standard
   it("recommends downgrading Midjourney Pro to Standard for single-user", () => {
     const result = runAuditEngine(
-      [tool("Midjourney", "60", "1", "Marketing / Creative")],
+      [tool("Midjourney", "Pro", "60", "1", "Marketing / Creative")],
       "1–10"
     );
     const rec = result.toolResults[0].recommendation;
@@ -127,3 +128,4 @@ describe("runAuditEngine", () => {
     expect(rec.savings).toBe(30); // $60 - $30
   });
 });
+

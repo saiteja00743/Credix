@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Credex AI <audit@credex-ai.com>",
+        from: "Credex AI <onboarding@resend.dev>",
         to: [payload.to],
         subject: `Your AI Spend Audit: $${Math.round(payload.annualSavings).toLocaleString()} annual savings identified`,
         html,

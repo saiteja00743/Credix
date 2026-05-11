@@ -30,8 +30,8 @@ export default function Footer() {
           {/* Brand col */}
           <div className="col-span-2">
             <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+                <img src="/icon.png" alt="Credex Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-[22px] font-bold tracking-tight">
                 Credex<span className="text-primary">AI</span>

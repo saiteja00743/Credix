@@ -1,77 +1,91 @@
-# Credex AI Spend Audit Platform
+# <img src="src/app/icon.png" width="32" height="32" valign="middle" /> Credex AI: Spend Audit Platform
 
-**Live Demo:** [https://credix-nu.vercel.app/](https://credix-nu.vercel.app/)  
-**GitHub Repository:** [https://github.com/saiteja00743/Credix](https://github.com/saiteja00743/Credix)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 
-Credex AI is a premium B2B SaaS landing page and dashboard designed to help startup founders, CFOs, and engineering managers identify and eliminate wasted spend on enterprise AI tools (like ChatGPT Plus, Anthropic API, GitHub Copilot, etc.). 
+**Credex AI** is a premium, high-conversion lead generation engine designed for the AI era. It helps startups and enterprises identify wasted spend on AI subscriptions (Cursor, Claude, ChatGPT, etc.) and offers defensible, data-driven optimization strategies.
 
-This application functions as a highly-polished lead generation engine, utilizing an interactive "AI Spend Audit" form to immediately calculate and display ROI to prospective clients.
+---
 
-## Features
-- **Dynamic Spend Audit Engine:** A rule-based engine that evaluates user inputs against real-world pricing data to recommend downgrades, consolidations, or infrastructure credits.
-- **AI-Powered Insights:** Uses the **Anthropic Claude API** to generate personalized, narrative summaries of the user's stack and potential savings, complete with a graceful local fallback.
-- **Zero-Friction Lead Capture:** Persists leads and full audit data to **Supabase**. Even if DB connection fails, users immediately receive their client-side audit results.
-- **Transactional Email Flow:** Automatically fires a polished HTML confirmation email via **Resend**, containing the user's customized savings report.
-- **Shareable Reports with OG Tags:** Dynamically generates `/report/[id]` URLs. These routes use server-side fetching (SSR) to render custom Open Graph metadata, ensuring social media and Slack shares look incredible.
-- **Premium UI/UX:** Built with a "Silicon Valley" startup aesthetic. Features dark mode, glassmorphism, glowing radial gradients, scroll-triggered micro-animations, and an interactive **Floating Demo Widget** for recruiters.
-- **Tailwind CSS v4:** Built using the bleeding-edge Tailwind v4 architecture (`@theme` directly in CSS).
+### 🔗 Project Links
+- **Live Production URL:** [https://credix-nu.vercel.app/](https://credix-nu.vercel.app/)
+- **GitHub Repository:** [https://github.com/saiteja00743/Credix](https://github.com/saiteja00743/Credix)
+- **Demo Walkthrough:** [30-Second Video Placeholder] <!-- Replace with your Loom/YouTube link -->
 
-## Tech Stack
-- **Framework:** Next.js 16 (App Router)
-- **UI:** React 19, Tailwind CSS v4, Radix UI
-- **Animations:** Framer Motion
-- **AI Integration:** Anthropic SDK (Claude 3.5 Sonnet)
-- **Database:** Supabase (PostgreSQL with RLS)
-- **Email:** Resend API
+---
 
-## Getting Started
+### 🚀 Key Features
 
-1. Clone the repository.
-2. Install dependencies:
+#### 🧠 Dynamic Audit Engine
+A deterministic, rule-based engine that evaluates user stacks against real-world pricing data. It identifies plan mismatches (e.g., 2 users on a 5-seat minimum Team plan) and suggests consolidation opportunities.
+
+#### ⚡ AI-Powered Summaries
+Integrated with **Anthropic Claude 3.5 Sonnet** to generate narrative, executive-ready summaries of potential savings. Features a zero-latency fallback system for 100% uptime.
+
+#### 📈 Benchmark Mode
+Allows users to compare their AI spend per developer against industry averages for Seed, Growth, and Enterprise stages, creating a compelling psychological hook for Credex's services.
+
+#### 🔗 Viral Shareability
+Dynamic `/report/[id]` routes with custom-generated Open Graph metadata for high-quality previews on Twitter, Slack, and LinkedIn.
+
+---
+
+### 🛠️ Tech Stack
+
+- **Frontend:** Next.js 15 (App Router), React 19
+- **Styling:** Tailwind CSS v4, Framer Motion (Animations), Radix UI (Primitives)
+- **Backend:** Supabase (Auth, DB, RLS), Next.js API Routes
+- **Integrations:** Anthropic API (AI), Resend API (Transactional Email)
+- **Infrastructure:** Vercel (Deployment), GitHub Actions (CI/CD)
+
+---
+
+### 📖 Documentation Index
+
+| File | Purpose |
+|---|---|
+| [`DEVLOG.md`](./DEVLOG.md) | Day-by-day journal of the 7-day build cycle. |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | System design, data flow, and scalability plan. |
+| [`REFLECTION.md`](./REFLECTION.md) | Technical post-mortem, bug reports, and AI usage disclosure. |
+| [`ECONOMICS.md`](./ECONOMICS.md) | Unit economics, CAC analysis, and revenue modeling. |
+| [`GTM.md`](./GTM.md) | Go-To-Market strategy and distribution channels. |
+| [`USER_INTERVIEWS.md`](./USER_INTERVIEWS.md) | Insights from discovery calls with real users. |
+| [`PRICING_DATA.md`](./PRICING_DATA.md) | Verified source of truth for all audit logic pricing. |
+| [`PROMPTS.md`](./PROMPTS.md) | Full LLM prompts and iteration history. |
+| [`TESTS.md`](./TESTS.md) | Automated test suite documentation and coverage. |
+
+---
+
+### 🏗️ Engineering Decisions
+
+- **Why Tailwind v4?** Utilized the new `@theme` architecture to centralize design tokens directly in CSS, reducing configuration overhead.
+- **Why Supabase?** Rapid iteration speed and built-in Row Level Security (RLS) allowed for a secure, production-ready backend within the 7-day sprint.
+- **Deterministic Logic:** Chose hardcoded rules for the audit math over LLM-based calculations to ensure financial accuracy and defensibility.
+
+---
+
+### ⚡ Quick Start
+
+1. **Clone & Install:**
    ```bash
+   git clone https://github.com/saiteja00743/Credix.git
+   cd Credix
    npm install
    ```
-3. Set up your environment variables. Copy `.env.example` to `.env` and fill in your keys:
-   ```bash
-   cp .env.example .env
-   ```
-   *(Required keys: `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_BASE_URL`)*
-4. Run the development server:
+2. **Environment Setup:**
+   Create a `.env` file based on `.env.example`:
+   `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `RESEND_API_KEY`
+3. **Run Dev Server:**
    ```bash
    npm run dev
    ```
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. **Run Tests:**
+   ```bash
+   npm test
+   ```
 
-## Project Documentation
-To understand the business rationale and architectural decisions behind this product, please review the following documents:
-- `DEVLOG.md`: A day-by-day journal of the entire 7-day development cycle.
-- `ARCHITECTURE.md`: Current system architecture, data flow, and design decisions.
-- `REFLECTION.md`: Honest post-mortem — hardest bugs, reversed decisions, and AI tool usage.
-- `ECONOMICS.md`: Unit economics, revenue model, and path to $1M ARR.
-- `GTM.md`: Go-To-Market strategy, distribution channels, and first-100-users plan.
-- `USER_INTERVIEWS.md`: Notes from user discovery conversations.
-- `PRICING_DATA.md`: The single source of truth for the audit engine's logic (with vendor URLs).
-- `PROMPTS.md`: The LLM prompts used for AI summaries — including what didn't work.
-- `LANDING_COPY.md`: Production-ready marketing copy for the landing page.
-- `METRICS.md`: North Star metric, input metrics, and pivot decision triggers.
-- `TESTS.md`: All automated tests, what they cover, and how to run them.
+---
 
-## Key Decisions
-
-### Why next-themes over a custom dark mode solution?
-`next-themes` handles the SSR/hydration flash problem correctly out of the box via `suppressHydrationWarning` on the `<html>` element. A custom solution would have required the same approach anyway, plus additional state management.
-
-### Why Supabase over Cloudflare D1?
-Supabase has better DX for a 7-day sprint: a hosted GUI, instant RLS policy UI, and a JavaScript client with TypeScript types auto-generated from the schema. D1 is closer to the edge and cheaper at scale, but the operational overhead of setting up Wrangler and migrations in a time-constrained build wasn't justified.
-
-### Why a deterministic fallback for the AI summary instead of retrying?
-Retrying the Anthropic API on failure adds latency and risks blocking the user's dashboard render. A deterministic fallback that uses the same audit data produces a meaningful, accurate summary without any round-trip. Users can't tell the difference in quality for a 100-word paragraph.
-
-### Why in-memory rate limiting instead of Redis?
-A serverless-safe Redis rate limiter (Upstash) requires provisioning another external service, environment variable setup, and SDK integration. For a 7-day MVP where the risk of abuse is low, in-memory limiting covers the >95% of bot traffic from a single origin. The comment in the code explicitly documents the production upgrade path.
-
-## Running Tests
-```bash
-npm test
-```
-Tests cover the core `auditEngine.ts` business logic with 10 assertions. See `TESTS.md` for details.
+*Built with passion for the Credex Intern Assignment — Round 1.*

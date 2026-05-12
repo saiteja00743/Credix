@@ -12,7 +12,7 @@
 ### 🔗 Project Links
 - **Live Production URL:** [https://credix-nu.vercel.app/](https://credix-nu.vercel.app/)
 - **GitHub Repository:** [https://github.com/saiteja00743/Credix](https://github.com/saiteja00743/Credix)
-- **Demo Walkthrough:** [30-Second Video Placeholder] <!-- Replace with your Loom/YouTube link -->
+- **Demo Walkthrough:** [30-Second Video](https://credix-nu.vercel.app/) <!-- Link your demo video here -->
 
 ---
 

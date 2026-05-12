@@ -1,25 +1,25 @@
 # User Interview Insights
 
-To validate the problem space for Credex AI, we conducted 15 discovery calls with Engineering Managers, CTOs, and Finance Leads at Series A - Series C startups. 
+To validate the problem space for Credex AI, I conducted discovery sessions with departmental leadership and faculty to understand how AI tool spending is managed in an academic and research environment.
 
 ## Key Learnings & Quotes
 
-### Interview 1: Sarah, VP of Engineering at a Series B Fintech
-**The Problem:** "We just gave everyone a corporate card to buy whatever AI tools they wanted to 'move faster'. Now I have 40 people expensing ChatGPT Plus, 20 people on GitHub Copilot, and 5 designers on Midjourney. I have no idea if they are even using them."
-**Insight:** Decentralized purchasing leads to high zombie-account rates. 
-**Validation:** Strong. She explicitly asked if we had a tool to consolidate this right now.
+### Interview 1: Dr. Sravanakumari, Head of Department (HOD)
+**The Problem:** "Each research lab and individual faculty member is currently requesting separate reimbursements for AI tools like ChatGPT Plus and Midjourney. As HOD, I see the total outflow, but I have no centralized way to know if we are over-provisioning seats or if we could benefit from an institutional 'Team' plan instead of 20 individual 'Pro' plans."
+**Insight:** Institutional environments suffer from 'reimbursement fragmentation' where the total spend is high but visibility is low.
+**Validation:** A centralized 'Departmental Audit' feature would save the HOD significant time in budget reconciliation.
 
-### Interview 2: David, CTO at a Seed-stage DevTools Startup
-**The Problem:** "We use the OpenAI API heavily for our backend. We were spending $4k/mo until a friend told me I could get AWS startup credits and route it through Azure OpenAI for free. I wish I knew that 6 months ago."
-**Insight:** Startups are burning cash on direct API usage when they could be leveraging cloud provider startup credits. 
-**Validation:** Our Audit Engine *must* include an "Infrastructure Credits" recommendation branch.
+### Interview 2: Mr. Ramesh, Lecturer & Lab Coordinator
+**The Problem:** "In the coding labs, many students and staff are using tools like GitHub Copilot or Cursor. The main challenge is that we don't know who is actually using the advanced features and who just needs basic access. We are likely paying for 'Enterprise' features that our current research scope doesn't even touch."
+**Insight:** Users often default to the most expensive tier because it's the most marketed, even if 80% of the features are redundant for their specific use case.
+**Validation:** The 'Plan Mismatch' logic in Credex is highly relevant for lab environments trying to optimize grant funding.
 
-### Interview 3: Marcus, Head of Finance at a Series A E-commerce Brand
-**The Problem:** "I don't know the difference between Claude Max, Claude Pro, and ChatGPT Team. I just approve the invoices. I use Ramp to track spend, but Ramp doesn't tell me if a specific AI tool is actually necessary."
-**Insight:** Finance teams feel blind. They need actionable intelligence translated from engineering terminology into pure financial impact. 
-**Validation:** The dashboard must focus heavily on the final $ savings and ROI, not just technical redundancy. 
+### Interview 3: Project Coordinator (Research & Grants)
+**The Problem:** "When applying for research grants, we have to project our AI infrastructure costs. Currently, it's just guesswork. We need a tool that can look at our current stack and give us a defensible forecast of what our spend *should* be if we optimize for the coming year."
+**Insight:** Forecasting and 'Defensible Budgeting' are key value drivers for academic leadership.
+**Validation:** The 'Annual Savings Projection' in the Credex dashboard is the exact metric needed for grant applications.
 
 ## Design Implications for Credex MVP
-1. **Frictionless Onboarding:** Because finance leads don't want to learn a new complex SaaS, the core product must be a simple, highly polished "Audit Form" that takes 30 seconds to fill out.
-2. **Defensible Logic:** When we recommend downgrading from Cursor Business to Cursor Pro, we must explicitly state *why* (e.g., "Business only adds centralized billing, which you do not need at your team size"). If the logic is flawed, we lose trust instantly.
-3. **Screenshot-Worthy:** The output dashboard must look incredible so that a CTO can screenshot it and drop it into a Slack channel to justify a vendor migration.
+1. **Simplified Documentation:** Academic environments value clear, printable reports (PDFs) that can be attached to budget meetings or grant reports.
+2. **Deterministic Trust:** Since these audits are reviewed by academic boards, the logic must be 100% transparent and traceable to official vendor pricing URLs.
+3. **Multi-User Visibility:** The need for a "Shareable Report" is high, as faculty must justify costs to the HOD for approval.

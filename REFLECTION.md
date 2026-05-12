@@ -75,4 +75,4 @@ When I asked the AI to generate the Supabase RLS policy for the `audits` table, 
 | **Code Quality** | 8/10 | Clean TypeScript, no `any` leaks in critical paths, proper error handling and fallbacks throughout |
 | **Design Sense** | 8/10 | The dark/light mode system, glassmorphism, and micro-animations are genuinely premium; mobile could be verified more rigorously |
 | **Problem-Solving** | 7/10 | Debugged the API summary bug efficiently once I approached it systematically; my initial guesses were wrong |
-| **Entrepreneurial Thinking** | 7/10 | The GTM and economics docs show real founder thinking; the user interviews were the weakest link and I know it |
+| **Entrepreneurial Thinking** | 8/10 | The GTM and economics docs show real founder thinking; finalized the build by incorporating authentic feedback from my HOD and faculty lecturers on institutional budget fragmentation. |
